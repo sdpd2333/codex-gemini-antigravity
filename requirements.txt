@@ -1,0 +1,2 @@
+google-antigravity==0.1.23
+mcp==1.30.0
