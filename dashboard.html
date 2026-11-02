@@ -1364,7 +1364,7 @@
                 <label for="task-project-dir" class="form-label">项目工作区目录 (绝对路径) *</label>
                 <button type="button" class="btn btn-xs" id="btn-use-default-dir" style="display:none;" title="填入当前环境推荐的工作区路径">填入默认路径</button>
               </div>
-              <input type="text" id="task-project-dir" class="form-input" placeholder="例如: C:\Users\name\project 或 /home/user/project" required>
+              <input type="text" id="task-project-dir" class="form-input" placeholder="例如: C:\Projects\my-app 或 /home/user/project" required>
               <div class="form-hint" id="task-default-dir-hint">必须为绝对路径。智能体将在此目录下读取文件、生成代码变更并执行相关环境工具。</div>
             </div>
 
@@ -2076,7 +2076,7 @@
         // Validate absolute path (Windows drive letters / unc or POSIX slash)
         const isAbsolute = /^([a-zA-Z]:[\\\/]|\/|\\\\)/.test(projectDir);
         if (!isAbsolute) {
-          showInlineAlert(taskFormAlert, '项目路径必须为绝对路径（如 C:\\Users\\... 或 /home/...）', 'error');
+          showInlineAlert(taskFormAlert, '项目路径必须为绝对路径（如 C:\\Projects\\my-app 或 /home/...）', 'error');
           taskProjectDirInput.focus();
           return;
         }
