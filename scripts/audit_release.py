@@ -8,7 +8,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 SKIP_DIRS = {".git", ".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
-PRIVATE_NAMES = {"key.dpapi", "settings.json", "runtime.json", ".env", "id_rsa", "id_ed25519"}
+PRIVATE_NAMES = {"key.dpapi", "settings.json", "runtime.json", "panel.json", "job.json", ".env", "id_rsa", "id_ed25519"}
 PRIVATE_SUFFIXES = {".log", ".pem", ".key", ".p12", ".pfx", ".sqlite", ".sqlite3", ".bak"}
 PATTERNS = {
     "private-key block": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),

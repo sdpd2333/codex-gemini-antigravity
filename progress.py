@@ -3,10 +3,13 @@ from __future__ import annotations
 
 from collections import deque
 from datetime import datetime, timezone
+import ctypes
+from ctypes import wintypes
 import json
 import os
 from pathlib import Path
 import re
+import threading
 
 import common
 
@@ -54,8 +57,30 @@ def load_job(job_id: str) -> dict | None:
 
 def process_alive(pid: int) -> bool:
     try:
-        if pid <= 0:
+        if not isinstance(pid, int) or pid <= 0:
             return False
+        if pid == os.getpid():
+            return True
+        if os.name == "nt":
+            # On Windows os.kill(pid, 0) can terminate the process. Query its
+            # exit code through a read-only handle instead.
+            kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+            kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+            kernel.OpenProcess.restype = wintypes.HANDLE
+            kernel.GetExitCodeProcess.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+            kernel.GetExitCodeProcess.restype = wintypes.BOOL
+            kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+            kernel.CloseHandle.restype = wintypes.BOOL
+            handle = kernel.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+            if not handle:
+                return ctypes.get_last_error() == 5  # Access denied does not prove exit.
+            try:
+                code = wintypes.DWORD()
+                if not kernel.GetExitCodeProcess(handle, ctypes.byref(code)):
+                    return True
+                return code.value == 259  # STILL_ACTIVE
+            finally:
+                kernel.CloseHandle(handle)
         os.kill(pid, 0)
         return True
     except ProcessLookupError:
@@ -83,7 +108,10 @@ class TranscriptTracker:
 
     def update(self, directory: Path) -> dict:
         try:
-            paths = list((directory / "session").rglob("transcript.jsonl"))
+            # The SDK stores its live JSONL under app_data_dir; save_dir may
+            # contain only a session database. Keep the older layout supported.
+            paths = list((directory / "runtime" / "brain").rglob("transcript.jsonl"))
+            paths.extend((directory / "session").rglob("transcript.jsonl"))
             if paths:
                 path = max(paths, key=lambda item: item.stat().st_mtime_ns)
                 size = path.stat().st_size
@@ -145,9 +173,15 @@ class TranscriptTracker:
 
 
 _trackers: dict[str, TranscriptTracker] = {}
+_tracker_lock = threading.RLock()
 
 
 def snapshot(job: dict, *, include_result: bool = True) -> dict:
+    with _tracker_lock:
+        return _snapshot(job, include_result=include_result)
+
+
+def _snapshot(job: dict, *, include_result: bool = True) -> dict:
     job_id = job["job_id"]
     if job_id not in _trackers:
         if len(_trackers) >= 60:

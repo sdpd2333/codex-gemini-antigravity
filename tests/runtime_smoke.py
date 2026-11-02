@@ -10,6 +10,7 @@ import threading
 APP = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP))
 from agent_runner import make_config
+from progress import TranscriptTracker
 from google.antigravity import Agent
 
 REQUESTS = []
@@ -48,8 +49,12 @@ async def main():
                     text = await response.text()
             assert "MOCK_ANTIGRAVITY_OK" in text, repr(text)
             assert REQUESTS, "The mock endpoint was not called"
+            activity = TranscriptTracker().update(Path(temporary))
+            assert activity["model_calls"] >= 1, "The SDK transcript was not reflected in panel activity"
+            assert activity["events"], "The SDK transcript produced no panel activity events"
             print(json.dumps({"ok": True, "reply": text, "paths": [r["path"] for r in REQUESTS],
-                              "tool_config_sent": bool(REQUESTS[0]["body"].get("tools"))}, ensure_ascii=False))
+                              "tool_config_sent": bool(REQUESTS[0]["body"].get("tools")),
+                              "progress_model_calls": activity["model_calls"]}, ensure_ascii=False))
     finally:
         httpd.shutdown()
 

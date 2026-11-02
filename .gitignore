@@ -9,6 +9,8 @@
 jobs/
 sessions/
 runtime.json
+panel.json
+**/job.json
 *.log
 *.bak
 *.pem

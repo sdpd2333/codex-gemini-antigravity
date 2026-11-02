@@ -1317,10 +1317,10 @@
               <input type="text" class="search-input" id="search-input" placeholder="搜索任务名称、ID或模型..." aria-label="搜索任务">
             </div>
             <div class="filter-tabs" role="tablist">
-              <button class="filter-tab active" data-filter="all" role="tab">全部</button>
-              <button class="filter-tab" data-filter="running" role="tab">进行中</button>
-              <button class="filter-tab" data-filter="completed" role="tab">已完成</button>
-              <button class="filter-tab" data-filter="issues" role="tab">异常</button>
+              <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">全部</button>
+              <button class="filter-tab" data-filter="running" role="tab" aria-selected="false">进行中</button>
+              <button class="filter-tab" data-filter="completed" role="tab" aria-selected="false">已完成</button>
+              <button class="filter-tab" data-filter="issues" role="tab" aria-selected="false">异常</button>
             </div>
             <div class="sidebar-meta">
               <span id="job-counter-text">加载中...</span>
@@ -1364,7 +1364,7 @@
                 <label for="task-project-dir" class="form-label">项目工作区目录 (绝对路径) *</label>
                 <button type="button" class="btn btn-xs" id="btn-use-default-dir" style="display:none;" title="填入当前环境推荐的工作区路径">填入默认路径</button>
               </div>
-              <input type="text" id="task-project-dir" class="form-input" placeholder="例如: C:\Projects\my-app 或 /home/user/project" required>
+              <input type="text" id="task-project-dir" class="form-input" placeholder="例如: C:\Projects\my-app 或 /workspace/my-app" required>
               <div class="form-hint" id="task-default-dir-hint">必须为绝对路径。智能体将在此目录下读取文件、生成代码变更并执行相关环境工具。</div>
             </div>
 
@@ -1372,18 +1372,18 @@
             <div class="form-group">
               <label class="form-label">执行模式 (Mode) *</label>
               <div class="mode-selector-grid">
-                <label class="mode-card active" id="mode-card-edit">
-                  <input type="radio" name="task-mode" value="edit" checked class="mode-radio">
+                <label class="mode-card" id="mode-card-edit">
+                  <input type="radio" name="task-mode" value="edit" class="mode-radio">
                   <div class="mode-content">
                     <div class="mode-title-row">
                       <span class="mode-name">编辑模式 (edit)</span>
-                      <span class="badge-sdk">推荐</span>
+                      <span class="badge-sdk">可修改文件</span>
                     </div>
                     <div class="mode-desc">允许智能体修改工作区文件并执行终端命令，完整推进与交付任务。</div>
                   </div>
                 </label>
-                <label class="mode-card" id="mode-card-review">
-                  <input type="radio" name="task-mode" value="review" class="mode-radio">
+                <label class="mode-card active" id="mode-card-review">
+                  <input type="radio" name="task-mode" value="review" checked class="mode-radio">
                   <div class="mode-content">
                     <div class="mode-title-row">
                       <span class="mode-name">审查模式 (review)</span>
@@ -1401,7 +1401,7 @@
                 <label for="task-timeout" class="form-label">超时时间限制 (秒) *</label>
                 <span class="form-label-sub">范围 10 ~ 1800 秒</span>
               </div>
-              <input type="number" id="task-timeout" class="form-input" min="10" max="1800" value="600" step="10" required>
+              <input type="number" id="task-timeout" class="form-input" min="10" max="1800" value="600" step="1" required>
               <div class="form-hint">单次任务最长运行限时，默认 600 秒 (10 分钟)。超时将自动安全终止。</div>
             </div>
 
@@ -1432,7 +1432,7 @@
           <div class="form-card">
             <div class="form-header">
               <h2 class="form-title">Gemini 服务连接与中继设置</h2>
-              <p class="form-desc">配置 Google Gemini 官方接口或中继反代端点。凭证保存在本地安全后端，不暴露于前端页面。</p>
+              <p class="form-desc">填写你的 Gemini 兼容服务地址，拉取模型并保存连接配置。</p>
             </div>
 
             <!-- Inline Alert Status Box -->
@@ -1442,7 +1442,7 @@
             <div class="form-group">
               <label for="cfg-base-url" class="form-label">中继服务地址 (Base URL)</label>
               <input type="text" id="cfg-base-url" class="form-input" placeholder="例如: https://generativelanguage.googleapis.com 或第三方中继代理地址">
-              <div class="form-hint">如使用官方原生接口可留空或填入 Google Gemini 原生网关端点。</div>
+              <div class="form-hint">填写完整 HTTPS 地址；修改服务地址后需要重新填写对应的 Key。</div>
             </div>
 
             <!-- Field 2: API Key with Show/Hide -->
@@ -1455,7 +1455,7 @@
                 <input type="password" id="cfg-key" class="form-input" autocomplete="new-password" placeholder="输入 Gemini API Key (如不修改请留空)">
                 <button type="button" class="btn" id="btn-toggle-key" title="切换显示/隐藏密码">显示</button>
               </div>
-              <div class="form-hint">安全保障：密钥仅在用户显式保存或测试时以 POST 方式安全提交，绝不预填或存储于浏览器前端。</div>
+              <div class="form-hint">Key 使用 Windows 加密保存在本机。留空可沿用同一服务已保存的 Key。</div>
             </div>
 
             <!-- Field 3: Model Selection & Fetcher -->
@@ -1465,7 +1465,7 @@
                 <span class="form-label-sub" id="model-count-label"></span>
               </div>
               <div class="input-with-button">
-                <input type="text" id="cfg-model" class="form-input" placeholder="例如: gemini-2.5-pro, gemini-2.5-flash">
+                <input type="text" id="cfg-model" class="form-input" placeholder="从列表选择或填写完整模型 ID">
                 <button type="button" class="btn" id="btn-fetch-models" title="从中继端点拉取所有可用模型列表">拉取可用模型</button>
               </div>
               <div class="form-hint">可手动直接输入模型完整 ID，或点击右侧按钮拉取当前中继支持的模型列表。</div>
@@ -1501,7 +1501,7 @@
                   <span class="runtime-info-v" id="rt-ready-text">检查中...</span>
                 </div>
                 <div class="runtime-info-item">
-                  <span class="runtime-info-k">Python 环境</span>
+                  <span class="runtime-info-k">代理运行环境</span>
                   <span class="runtime-info-v" id="rt-runtime-text">--</span>
                 </div>
                 <div class="runtime-info-item" style="grid-column: 1 / -1;">
@@ -1528,6 +1528,7 @@
       // ==========================================
       let activeTab = 'tasks';
       let allJobs = [];
+      let jobsFingerprint = '';
       let selectedJobId = null;
       let activeFilter = 'all';
       let searchQuery = '';
@@ -1770,9 +1771,11 @@
           if (key === targetTab) {
             btn.classList.add('active');
             btn.setAttribute('aria-selected', 'true');
+            btn.tabIndex = 0;
           } else {
             btn.classList.remove('active');
             btn.setAttribute('aria-selected', 'false');
+            btn.tabIndex = -1;
           }
         }
 
@@ -1801,7 +1804,7 @@
           connSummaryBadge.title = `连接就绪 (${cfg.model || 'Gemini'}) 点击管理连接`;
           connSummaryText.textContent = cfg.model ? `已就绪: ${cfg.model}` : '连接已就绪';
           navSettingsWarnDot.style.display = 'none';
-          rtReadyText.textContent = '已就绪 (连接有效)';
+          rtReadyText.textContent = '已配置（可点击测试连接）';
           rtReadyText.style.color = 'var(--brand-green-text)';
         } else {
           connSummaryBadge.className = 'conn-badge needs-setup';
@@ -1826,7 +1829,7 @@
 
         // Key hint only - NEVER prefill key input
         if (cfg.key_configured) {
-          cfgKeyHint.textContent = '● 已保存有效密钥（如不修改请留空）';
+          cfgKeyHint.textContent = '● 已配置 Key（如不修改请留空）';
           cfgKeyHint.className = 'form-label-sub text-success';
         } else {
           cfgKeyHint.textContent = '○ 尚未配置 API 访问密钥';
@@ -2051,7 +2054,7 @@
         const projectDir = taskProjectDirInput.value.trim();
         const timeoutSeconds = parseInt(taskTimeoutInput.value.trim(), 10);
         
-        let selectedMode = 'edit';
+        let selectedMode = 'review';
         const modeRadios = document.getElementsByName('task-mode');
         for (const r of modeRadios) {
           if (r.checked) {
@@ -2076,7 +2079,7 @@
         // Validate absolute path (Windows drive letters / unc or POSIX slash)
         const isAbsolute = /^([a-zA-Z]:[\\\/]|\/|\\\\)/.test(projectDir);
         if (!isAbsolute) {
-          showInlineAlert(taskFormAlert, '项目路径必须为绝对路径（如 C:\\Projects\\my-app 或 /home/...）', 'error');
+          showInlineAlert(taskFormAlert, '项目路径必须为绝对路径（如 C:\\Projects\\my-app）', 'error');
           taskProjectDirInput.focus();
           return;
         }
@@ -2122,7 +2125,7 @@
           // On success: select job_id and switch to tasks tab
           selectedJobId = data.job_id;
           switchTab('tasks');
-          await fetchJobs();
+          await fetchJobs(true);
         } catch (err) {
           console.error('Task submit error:', err);
           showInlineAlert(taskFormAlert, `提交任务失败: ${err.message}`, 'error');
@@ -2159,7 +2162,7 @@
           }
 
           // Immediate refresh
-          await fetchJobs();
+          await fetchJobs(true);
         } catch (err) {
           console.error('Cancel job error:', err);
           btnElement.textContent = '终止失败';
@@ -2253,8 +2256,7 @@
           const isSelected = job.job_id === selectedJobId;
           const card = createElement('button', isSelected ? 'job-card selected' : 'job-card');
           card.setAttribute('type', 'button');
-          card.setAttribute('role', 'article');
-          card.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+          card.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
           card.dataset.jobId = job.job_id || '';
 
           // Card Top
@@ -2305,10 +2307,10 @@
         cards.forEach(card => {
           if (card.dataset.jobId === jobId) {
             card.classList.add('selected');
-            card.setAttribute('aria-selected', 'true');
+            card.setAttribute('aria-pressed', 'true');
           } else {
             card.classList.remove('selected');
-            card.setAttribute('aria-selected', 'false');
+            card.setAttribute('aria-pressed', 'false');
           }
         });
         renderDetailView();
@@ -2354,17 +2356,6 @@
           cancelBtn.setAttribute('type', 'button');
           cancelBtn.title = '取消当前正在执行的任务';
           cancelBtn.addEventListener('click', () => {
-            if (cancelBtn.dataset.confirming !== 'true') {
-              cancelBtn.dataset.confirming = 'true';
-              cancelBtn.textContent = '确认终止？点击';
-              setTimeout(() => {
-                if (cancelBtn && cancelBtn.parentNode) {
-                  cancelBtn.dataset.confirming = 'false';
-                  cancelBtn.textContent = '终止任务';
-                }
-              }, 4000);
-              return;
-            }
             cancelSelectedJob(job.job_id, cancelBtn);
           });
           headerBadges.appendChild(cancelBtn);
@@ -2428,7 +2419,7 @@
         durVal.dataset.finishedAt = job.finished_at || '';
         durVal.dataset.status = job.status || '';
         mDuration.appendChild(durVal);
-        mDuration.appendChild(createElement('div', 'metric-sub', job.status === 'running' ? '实时递增中' : '运行已终止'));
+        mDuration.appendChild(createElement('div', 'metric-sub', job.status === 'running' ? '实时递增中' : '运行已结束'));
         metricsGrid.appendChild(mDuration);
 
         // Current Phase Metric
@@ -2452,7 +2443,7 @@
         mToolCalls.appendChild(createElement('div', 'metric-title', '工具调用次数'));
         const toolCallCount = (prog.tool_calls !== undefined) ? String(prog.tool_calls) : '--';
         mToolCalls.appendChild(createElement('div', 'metric-value', toolCallCount));
-        mToolCalls.appendChild(createElement('div', 'metric-sub', '环境交互交互'));
+        mToolCalls.appendChild(createElement('div', 'metric-sub', '文件与命令操作'));
         metricsGrid.appendChild(mToolCalls);
 
         // Started At Metric
@@ -2560,10 +2551,12 @@
       // Handle Data Payload from GET api/jobs
       function handleDataUpdate(data) {
         if (!data || !Array.isArray(data.jobs)) {
-          console.warn('Invalid API response format:', data);
-          return;
+          throw new Error('任务服务返回了无效数据');
         }
 
+        const fingerprint = JSON.stringify(data.jobs);
+        const jobsChanged = fingerprint !== jobsFingerprint;
+        jobsFingerprint = fingerprint;
         allJobs = data.jobs;
         consecutiveErrors = 0;
 
@@ -2585,9 +2578,23 @@
         }
 
         // Render only if currently in tasks tab
-        if (activeTab === 'tasks') {
+        if (activeTab === 'tasks' && jobsChanged) {
+          const listScroll = jobListContainer.scrollTop;
+          const detailScroll = detailContainer.scrollTop;
+          const body = tabPanels.tasks.querySelector('.app-body');
+          const bodyScroll = body.scrollTop;
+          const resultScroll = detailContainer.querySelector('.result-container')?.scrollTop || 0;
+          const focusedJob = document.activeElement?.dataset.jobId;
           renderJobList();
           renderDetailView();
+          jobListContainer.scrollTop = listScroll;
+          detailContainer.scrollTop = detailScroll;
+          body.scrollTop = bodyScroll;
+          const result = detailContainer.querySelector('.result-container');
+          if (result) result.scrollTop = resultScroll;
+          if (focusedJob) {
+            Array.from(jobListContainer.querySelectorAll('.job-card')).find(el => el.dataset.jobId === focusedJob)?.focus({preventScroll:true});
+          }
         } else {
           // Even if background tab, keep running count badge updated
           const runningCount = allJobs.filter(j => (j.status || '').toLowerCase() === 'running').length;
@@ -2601,9 +2608,10 @@
       }
 
       // Safe Poller (Isolated from Form Inputs)
-      async function fetchJobs() {
-        if (isPaused) return;
+      async function fetchJobs(force = false) {
+        if (isPaused && !force) return;
         if (isFetching) return;
+        if (pollTimeoutId) clearTimeout(pollTimeoutId);
 
         isFetching = true;
         updateIndicator('fetching');
@@ -2618,7 +2626,7 @@
 
           const data = await response.json();
           handleDataUpdate(data);
-          updateIndicator('connected');
+          updateIndicator(isPaused ? 'paused' : 'connected');
         } catch (err) {
           consecutiveErrors++;
           console.error('Fetch error:', err);
@@ -2665,7 +2673,7 @@
 
       btnRefreshNow.addEventListener('click', () => {
         if (pollTimeoutId) clearTimeout(pollTimeoutId);
-        fetchJobs();
+        fetchJobs(true);
       });
 
       // Search & Filters in Tasks Tab
@@ -2676,8 +2684,12 @@
 
       filterTabs.forEach(tab => {
         tab.addEventListener('click', () => {
-          filterTabs.forEach(t => t.classList.remove('active'));
+          filterTabs.forEach(t => {
+            t.classList.remove('active');
+            t.setAttribute('aria-selected', 'false');
+          });
           tab.classList.add('active');
+          tab.setAttribute('aria-selected', 'true');
           activeFilter = tab.dataset.filter || 'all';
           renderJobList();
         });
